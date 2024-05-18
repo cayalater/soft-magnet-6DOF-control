@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "stdarg.h": "c",
+        "cstdint": "cpp",
+        "stdio.h": "c",
+        "stm32f10x.h": "c"
+    }
+}
