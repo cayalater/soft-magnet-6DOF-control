@@ -1,6 +1,15 @@
 #include "stm32f10x.h"                  // Device header
 #include "Configure.h"
+#include "OLED.h"
 
+#define packet_head 0xFF
+#define packet_tail 0xFE
+#define receiving_packet_head 0
+#define receiving_data        1
+#define receiving_packet_tail 2
+#define packet_length 4
+
+uint8_t Serial_RxPacket[packet_length];
 uint8_t Serial_RxData;
 uint8_t Serial_RxFlag;
 
@@ -98,17 +107,47 @@ uint8_t Serial_GetRxFlag(void)
 	return 0;
 }
 
-uint8_t Serial_GetRxData(void)
-{
-	return Serial_RxData;
-}
-
 void USART1_IRQHandler(void)
 {
+	static uint8_t RxState = receiving_packet_head;
+	static uint8_t pRxPacket = 0;
 	if (USART_GetITStatus(Common_USART, USART_IT_RXNE) == SET)
 	{
-		Serial_RxData = USART_ReceiveData(Common_USART);
-		Serial_RxFlag = 1;
+		uint8_t RxData = USART_ReceiveData(Common_USART);
+		
+		switch (RxState)
+		{
+			case receiving_packet_head :
+				if(RxData == packet_head)
+				{
+					RxState = receiving_data;
+					pRxPacket = 0;
+				}
+				break;
+			case receiving_data :
+				Serial_RxPacket[pRxPacket] = RxData;				
+				pRxPacket ++;
+				if(pRxPacket >= packet_length)
+				{
+					RxState = receiving_packet_tail;
+				}
+				break;
+			case receiving_packet_tail :
+				if(RxData == packet_tail)
+				{
+					RxState = receiving_packet_head;
+					/*这里写发送给电源柜电流数据的流程*/
+					OLED_ShowHexNum(1, 1, Serial_RxPacket[0], 2);
+					OLED_ShowHexNum(1, 4, Serial_RxPacket[1], 2);
+					OLED_ShowHexNum(1, 7, Serial_RxPacket[2], 2);
+					OLED_ShowHexNum(1, 10, Serial_RxPacket[3], 2);				
+				}
+				break;					
+		}
+		
 		USART_ClearITPendingBit(Common_USART, USART_IT_RXNE);
 	}
 }
+
+
+

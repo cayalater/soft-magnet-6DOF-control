@@ -31,4 +31,5 @@
 .\objects\main.o: .\System\Delay.h
 .\objects\main.o: .\Hardware\OLED.h
 .\objects\main.o: .\Hardware\Serial.h
+.\objects\main.o: User\Configure.h
 .\objects\main.o: .\Hardware\RS485.h

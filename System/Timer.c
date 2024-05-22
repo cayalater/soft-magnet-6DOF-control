@@ -113,13 +113,13 @@ void Timer_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_Init(&NVIC_InitStructure);
 
-	NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;    
+	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;    
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_Init(&NVIC_InitStructure);
     
-	NVIC_InitStructure.NVIC_IRQChannel = TIM6_IRQn;    
+	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;    
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;

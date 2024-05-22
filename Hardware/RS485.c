@@ -3,7 +3,7 @@
 #include "RS485.h"
 #include <stdio.h>
 
-
+uint8_t RS485_TxFlag;
 /****************************************************************底层通讯相关函数*********************************************************************/
 void RS485_Init(void)
 {
@@ -95,6 +95,7 @@ void RS485_SendReadFrame(uint8_t device_address, uint8_t cmd, uint16_t register_
     RS485_SendByte((uint8_t)(register_number & 0xff));              //寄存器数量低八位
     RS485_SendByte(crc_lower_byte);                                 //CRC校验码低八位
     RS485_SendByte(crc_upper_byte);                                 //CRC校验码高八位(modbus crc校验码低位先行)
+    RS485_TxFlag = 1;
 }
 
 void RS485_SendWriteFrame(uint8_t device_address, uint8_t cmd, uint16_t register_address, uint16_t register_number, uint8_t data_length, uint8_t *data)
@@ -122,6 +123,17 @@ void RS485_SendWriteFrame(uint8_t device_address, uint8_t cmd, uint16_t register
     }
     RS485_SendByte(crc_lower_byte);                                 //CRC校验码低八位
     RS485_SendByte(crc_upper_byte);                                 //CRC校验码高八位(modbus crc校验码低位先行)
+    RS485_TxFlag = 1;
+}
+
+extern uint8_t RS485_GetTxFlag(void)
+{
+    if(RS485_TxFlag == 1)
+    {
+        RS485_TxFlag = 0;
+        return 1;
+    }
+    return 0;
 }
 
 /*****************************************************************功能实现函数******************************************************************/
@@ -142,24 +154,22 @@ void RS485_Write_Address(uint8_t current_address, uint8_t set_address)
  * 函数名称：void RS485_Set_Vlotage(uint8_t coil_address, uint16_t Vlotage)
  * 功    能：设置输出电压（预置电压）
  * 说    明：此函数规定输出电压额定值均<= 600V且>= 60V
- * 入口参数：线圈电源地址；电压值，单位10mV，原始数据带2位小数
+ * 入口参数：线圈电源地址；电压值，单位10mV，原始数据带2位小数,最大值65535mV
 ***********************************************************************************************************************************************/
-void RS485_Set_Vlotage(uint8_t coil_address, float vlotage)
+void RS485_Set_Vlotage(uint8_t coil_address, uint8_t *vlotage)
 {
-    uint8_t vlotage_int[2] = {(uint8_t)((((uint16_t) (vlotage * 100)) >> 8) & 0xff), (uint8_t)(((uint16_t) (vlotage * 100)) & 0xff)};
-    RS485_SendWriteFrame(coil_address, cmd_write_multiple_register, 0x07D1, 1, 2, vlotage_int);         //2001寄存器：读写预置电压，16进制07D1
+    RS485_SendWriteFrame(coil_address, cmd_write_multiple_register, 0x07D1, 1, 2, vlotage);         //2001寄存器：读写预置电压，16进制07D1
 }
 
 /***********************************************************************************************************************************************
  * 函数名称：void RS485_Set_Current(uint8_t coil_address, uint16_t current)
  * 功    能：设置输出电流（预置电流）
  * 说    明：此函数规定输出电流额定值均<= 60A
- * 入口参数：线圈电源地址；电流值，单位mA，原始数据带3位小数
+ * 入口参数：线圈电源地址；电流值，单位mA，原始数据带3位小数,最大值65535mA
 ***********************************************************************************************************************************************/
-void RS485_Set_Current(uint8_t coil_address, float current)
+void RS485_Set_Current(uint8_t coil_address, uint8_t *current)
 {
-    uint8_t current_int[2] = {(uint8_t)((((uint16_t) (current * 1000)) >> 8) & 0xff), (uint8_t)(((uint16_t) (current * 1000)) & 0xff)};
-    RS485_SendWriteFrame(coil_address, cmd_write_multiple_register, 0x07D2, 1, 2, current_int);         //2002寄存器：读写预置电流，16进制07D2
+    RS485_SendWriteFrame(coil_address, cmd_write_multiple_register, 0x07D2, 1, 2, current);         //2002寄存器：读写预置电流，16进制07D2
 }
 
 /***********************************************************************************************************************************************
