@@ -7,7 +7,7 @@
 #define receiving_packet_head 0
 #define receiving_data        1
 #define receiving_packet_tail 2
-#define packet_length 4
+#define packet_length 14
 
 uint8_t Serial_RxPacket[packet_length];
 uint8_t Serial_RxData;
@@ -114,7 +114,6 @@ void USART1_IRQHandler(void)
 	if (USART_GetITStatus(Common_USART, USART_IT_RXNE) == SET)
 	{
 		uint8_t RxData = USART_ReceiveData(Common_USART);
-		
 		switch (RxState)
 		{
 			case receiving_packet_head :
@@ -140,7 +139,16 @@ void USART1_IRQHandler(void)
 					OLED_ShowHexNum(1, 1, Serial_RxPacket[0], 2);
 					OLED_ShowHexNum(1, 4, Serial_RxPacket[1], 2);
 					OLED_ShowHexNum(1, 7, Serial_RxPacket[2], 2);
-					OLED_ShowHexNum(1, 10, Serial_RxPacket[3], 2);				
+					OLED_ShowHexNum(1, 10, Serial_RxPacket[3], 2);					
+					OLED_ShowHexNum(2, 1, Serial_RxPacket[4], 2);
+					OLED_ShowHexNum(2, 4, Serial_RxPacket[5], 2);
+					OLED_ShowHexNum(2, 7, Serial_RxPacket[6], 2);
+					OLED_ShowHexNum(2, 10, Serial_RxPacket[7], 2);
+					OLED_ShowHexNum(3, 1, Serial_RxPacket[8], 2);
+					OLED_ShowHexNum(3, 4, Serial_RxPacket[9], 2);
+					OLED_ShowHexNum(3, 7, Serial_RxPacket[10], 2);
+					OLED_ShowHexNum(3, 10, Serial_RxPacket[11], 2);
+					OLED_ShowHexNum(4, 1, Serial_RxPacket[12], 2);											
 				}
 				break;					
 		}
